@@ -1,0 +1,110 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+package core
+
+import (
+	"aliyun-go-sdk-core/parameterHelper"
+	"fmt"
+	"net/http"
+	"sort"
+	"strings"
+)
+
+const (
+	QUERY_SEPARATOR  = "&"
+	HEADER_SEPARATOR = "\n"
+)
+
+type RoaHttpRequestBuilder struct {
+}
+
+//add value to http request header without canonical the key
+func addHeader(req *http.Request, key, val string) {
+	req.Header[key] = []string{val}
+}
+
+func (r *RoaHttpRequestBuilder) Buid(b *BaseClient, reqObject BaseRequest) *http.Request {
+	queryArgs := reqObject.GetQuery()
+	bodyArgs := reqObject.GetBody()
+
+	reqMtd := GetRequestMethod(reqObject.GetRequestMethod())
+
+	accessUrl := getRequestUrl(b, reqObject)
+
+	req := buildRequest(queryArgs, bodyArgs, reqMtd, accessUrl)
+
+	addHeader(req, "Date", parameterHelper.GetRFC2616Date())
+	addHeader(req, "Accept", getAcceptContentType(b.Profile.FormatType, reqMtd))
+	addHeader(req, "x-acs-signature-method", b.Profile.Signer.GetSignatureMethod())
+	addHeader(req, "x-acs-signature-version", b.Profile.Signer.GetVersion())
+	addHeader(req, "x-acs-version", b.Version)
+
+	if len(bodyArgs) > 0 {
+		bodyUrlVals := parameterHelper.ConvertMapToUrlValues(bodyArgs)
+		content := bodyUrlVals.Encode()
+
+		contentMd5 := parameterHelper.Md5Str([]byte(content))
+		req.Header.Add("Content-MD5", contentMd5)
+		req.Header.Add("Content-Length", fmt.Sprintf("%d", len([]byte(content))))
+		req.Header.Add("Content-Type", getAcceptContentType(b.Profile.FormatType, reqMtd))
+	}
+
+	addSdkVersion(req)
+	return req
+}
+
+func appendToArray(to []string, req *http.Request, key string) []string {
+	v := req.Header.Get(key)
+	to = append(to, v)
+
+	return to
+}
+
+func (*RoaHttpRequestBuilder) Sign(b *BaseClient, reqObject BaseRequest, req *http.Request) {
+	strArr := make([]string, 0)
+	strArr = append(strArr, GetRequestMethod(reqObject.GetRequestMethod()))
+
+	strArr = appendToArray(strArr, req, "Accept")
+	strArr = appendToArray(strArr, req, "Content-MD5")
+	strArr = appendToArray(strArr, req, "Content-Type")
+	strArr = appendToArray(strArr, req, "Date")
+
+	acsKeys := make([]string, 0)
+	for k, _ := range req.Header {
+		if strings.HasPrefix(strings.ToLower(k), "x-acs-") {
+			acsKeys = append(acsKeys, k)
+		}
+	}
+
+	sort.Strings(acsKeys)
+
+	for _, k := range acsKeys {
+		strArr = append(strArr, fmt.Sprintf("%s:%s", strings.ToLower(k), strings.Join(req.Header[k], ",")))
+	}
+
+	strArr = append(strArr, req.URL.RequestURI())
+	tobeSign := strings.Join(strArr, HEADER_SEPARATOR)
+
+	signatureStr := b.Profile.Signer.MakeSignature(b.Profile.AccessSecret, tobeSign)
+
+	signVal := "acs " + b.Profile.AccessKeyId + ":" + signatureStr
+	req.Header.Add("Authorization", signVal)
+
+}

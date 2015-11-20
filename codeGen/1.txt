@@ -1,0 +1,13 @@
+Missing file:..\openapi-meta-master\api-metadata\aliyun-api-metadata-aas\2015-07-01\Api\UpdatePasswordForAccount.json
+Missing file:..\openapi-meta-master\api-metadata\aliyun-api-metadata-crm\2015-04-08\Api\FindServiceManager.json
+Missing file:..\openapi-meta-master\api-metadata\aliyun-api-metadata-ecs\2014-05-26\Api\UnbindIpRange.json
+Missing file:..\openapi-meta-master\api-metadata\aliyun-api-metadata-ecs\2014-05-26\Api\ReleasePublicIpAddress.json
+Missing file:..\openapi-meta-master\api-metadata\aliyun-api-metadata-ecs\2014-05-26\Api\ModifyIntranetBandwidthKb.json
+Missing file:..\openapi-meta-master\api-metadata\aliyun-api-metadata-ecs\2014-05-26\Api\ModifyInstanceSpec.json
+Missing file:..\openapi-meta-master\api-metadata\aliyun-api-metadata-ecs\2014-05-26\Api\DescribeIpRanges.json
+Missing file:..\openapi-meta-master\api-metadata\aliyun-api-metadata-ecs\2014-05-26\Api\DescribeIntranetAttributeKb.json
+Missing file:..\openapi-meta-master\api-metadata\aliyun-api-metadata-ecs\2014-05-26\Api\DescribeInstancePhysicalAttribute.json
+Missing file:..\openapi-meta-master\api-metadata\aliyun-api-metadata-ecs\2014-05-26\Api\DescribeClusters.json
+Missing file:..\openapi-meta-master\api-metadata\aliyun-api-metadata-ecs\2014-05-26\Api\BindIpRange.json
+Missing file:..\openapi-meta-master\api-metadata\aliyun-api-metadata-slb\2014-05-15\Api\CreateLoadBalancerPro.json
+Missing file:..\openapi-meta-master\api-metadata\aliyun-api-metadata-sts\2015-04-01\Api\GetFederationToken.json

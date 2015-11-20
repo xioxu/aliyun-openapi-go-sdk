@@ -1,0 +1,52 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+ 
+package <%= packageName%><%function upperFirst(name){return name[0].toUpperCase() + name.substr(1);} modalName=upperFirst(modalName);%>
+
+import (
+<% if(HasArray || HasList) {%>"fmt"<%}%>
+<% if(HasMember || HasList) {%>"aliyun-go-sdk-core/objectBuilder"<%}%>
+)
+
+type <%= modalName %> struct <%= "{" %><% for(var i=0; i<Props.length; i++){ %>  
+    <%=Props[i].tagNameAlias + "  "+ Props[i].typeName %><% } %>
+<%= "}" %>
+
+func (m *<%=modalName%>)BuildProperties(parentKey string,flatObj map[string]interface{}){
+	<% for(var i=0; i<Props.length; i++) { %>
+    <% tagFullname = "m." + Props[i].tagName; if(Props[i].PropType == 0){ %> 
+       <%=tagFullname%> = make(<%=Props[i].typeName%>,0);
+       for i:=0; i < (flatObj[parentKey + "<%=Props[i].Key+".length"%>"]).(int);i++<%="{"%>
+            tmp:=<%=upperFirst(Props[i].basicType)+"{}"%>
+            tmp.BuildProperties(fmt.Sprintf(parentKey + "<%=Props[i].Key%>[%d]",i),flatObj)
+            <%=tagFullname%> = append(<%=tagFullname%>,tmp)
+       <%="}"%>
+     <%} else if(Props[i].PropType == 2){%>
+       <%=tagFullname%> = <%=Props[i].typeName+"{}"%>
+       <%=tagFullname%>.BuildProperties(parentKey + "<%="."+Props[i].typeName%>",flatObj)
+    <%}else  if(Props[i].PropType == 1){%> 
+       <%=tagFullname%> = <%-Props[i].GetValFunc+"( parentKey + \"" + Props[i].Key + "\",flatObj)"%>
+    <%} else  if(Props[i].PropType == 3){%>
+        <%=tagFullname%> = make(<%=Props[i].typeName%>,0);
+       for i:=0; i < (flatObj[parentKey + "<%=Props[i].Key+".length"%>"]).(int);i++<%="{"%>
+            <%=tagFullname%> = append(<%=tagFullname%>,builder.GetString(fmt.Sprintf("%s[%d]",parentKey+"<%=Props[i].Key%>",i),flatObj))
+       <%="}"%>
+    <%}%>
+	<%}%>
+}

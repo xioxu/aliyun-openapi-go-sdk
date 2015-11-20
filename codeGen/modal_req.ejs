@@ -1,0 +1,79 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+ 
+package <%= packageName%><% function upperFirst(name){return name[0].toUpperCase() + name.substr(1);}%><% function replaceVariableName(name){return upperFirst(name.replace("type","typeAlias").replace(/\./g,"_"));}%>
+
+<% if(modalInfo.hasProp) {%>import "aliyun-go-sdk-core" <%}%>
+<% if(modalInfo.patternProps && modalInfo.patternProps) {%>import "fmt" <%}%>
+
+type <%= upperFirst(modalName) %> struct <%= "{" %>  <% for (var idx in modalInfo.properties) {   %>
+      <%=replaceVariableName(modalInfo.properties[idx].tagName) + "  "+ modalInfo.properties[idx].type %>  <% } %>
+ <%="}"%>
+ 
+func (r *<%= modalName %>) GetQuery() map[string]string <%="{"%>
+<% if (modalInfo.Position.hasOwnProperty("Query")){ %>    var queryVals = make(map[string]string,<%=modalInfo.Position["Query"].length%>) <% }else{ %>    var queryVals = make(map[string]string,0) <%}%>
+<% if (modalInfo.Position.hasOwnProperty("Query")){ for(var i=0; i<modalInfo.Position["Query"].length; i++){ var ele = modalInfo.Position["Query"][i]; %>    
+    <%=ele.GetValFunc%>(queryVals,"<%=ele.tagName%>",r.<%=replaceVariableName(ele.tagName)%>)<%}%>
+<%}%>
+    return queryVals
+<%="}"%>
+
+func (r *<%= modalName %>) GetBody() map[string]string <%="{"%>
+<% if (modalInfo.Position.hasOwnProperty("Body")){ %>    var bodyVals = make(map[string]string,<%=modalInfo.Position["Body"].length%>) <% }else{ %>    var bodyVals = make(map[string]string,0) <%}%>
+<% if (modalInfo.Position.hasOwnProperty("Body")){ for(var i=0; i<modalInfo.Position["Body"].length; i++){ var ele = modalInfo.Position["Body"][i]; %>
+    <%=ele.GetValFunc%>(bodyVals,"<%=ele.tagName%>",r.<%=replaceVariableName(ele.tagName)%>)<%}%>
+    
+<%}%>
+    return bodyVals
+<%="}"%>
+
+func (r *<%= modalName %>) GetHeaders() map[string]string <%="{"%>
+<% if (modalInfo.Position.hasOwnProperty("Header")){ %>    var headerVals = make(map[string]string,<%=modalInfo.Position["Header"].length%>) <% }else{ %>    var headerVals = make(map[string]string,0) <%}%>
+<% if (modalInfo.Position.hasOwnProperty("Header")){ for(var i=0; i<modalInfo.Position["Header"].length; i++){ var ele = modalInfo.Position["Header"][i]; %>
+    <%=ele.GetValFunc%>(headerVals,"<%=ele.tagName%>",r.<%=replaceVariableName(ele.tagName)%>)<%}%>
+    
+<%}%>
+    return headerVals
+<%="}"%>
+
+func (r *<%= modalName %>) GetDomainValues() map[string]string <%="{"%>
+<% if (modalInfo.Position.hasOwnProperty("Domain")){ %>    var domainVals = make(map[string]string,<%=modalInfo.Position["Domain"].length%>) <% }else{ %>    var domainVals = make(map[string]string,0) <%}%>
+<% if (modalInfo.Position.hasOwnProperty("Domain")){ for(var i=0; i<modalInfo.Position["Domain"].length; i++){ var ele = modalInfo.Position["Domain"][i]; %>
+    <%=ele.GetValFunc%>(domainVals,"<%=ele.tagName%>",r.<%=replaceVariableName(ele.tagName)%>)<%}%>
+    
+<%}%>
+    return domainVals
+<%="}"%>
+
+func (r *<%= modalName %>) GetPath() string <%="{"%>
+    <% if (modalInfo.patternProps && modalInfo.patternProps!=""){%>    return fmt.Sprintf("<%=modalInfo.pattern%>"<%=modalInfo.patternProps%>) <%}else if(modalInfo.pattern){%> return "<%=modalInfo.pattern%>";    <%}else{%>return "";<%}%>
+<%="}"%>
+ 
+
+func (r *<%= modalName %>) GetRequestMethod() string <%="{"%>
+    return "<%=RequestMethod%>"
+<%="}"%>
+
+func (r *<%= modalName %>) GetProtocol() string <%="{"%>
+    return "<%=modalInfo.ReqProtocol%>"
+<%="}"%>
+
+func (r *<%= modalName %>) GetActionName() string  <%="{"%>
+    return "<%=actionName%>"
+<%="}"%>

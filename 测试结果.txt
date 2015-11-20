@@ -1,0 +1,29 @@
+﻿aas: 未测试通过，报The interface can not be called by a non-bid account错误
+ace: Aliyun Cloud Engin 云引擎，简称CE
+	 测试通过
+	 
+1. 属性定义不一致 如AppId 有的是string 有的是int
+
+sxsh1hbgs
+
+
+bss   DescribeCashDetailRequest java fail
+      golang pass
+	  
+batchcompute: pass
+   .\api-metadata\aliyun-api-metadata-batchcompute\2015-06-30\Api\GetJobDescription.json
+   中的tagPosition内容为"path"，而其他文件为首字母大写Path
+
+ecs: pass
+ocs: PASS
+SLB: pass
+kvstore:pass
+yundun: java and Golang both failed
+
+
+
+   
+  
+
+
+	

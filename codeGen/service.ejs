@@ -1,0 +1,52 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */ <% function getBuilderName(productName,apiStyle){ if(productName.toLowerCase() == "oss"){return "OssHttpRequestBuilder";} else if(apiStyle.toLowerCase()=="rpc"){return "RpcHttpRequestBuilder";}else{return "RoaHttpRequestBuilder"}   } %>
+ 
+package <%= packageName%><% function lowerFirst(name){return name[0].toLowerCase() + name.substr(1);} function upperFirst(name){return name[0].toUpperCase() + name.substr(1);}%>
+
+import  (
+"aliyun-go-sdk-core"
+<% for(var i=0; i<methodInfos.length; i++){ var mtdName = upperFirst(methodInfos[i].detail.name); %> 
+"<%= absServicePath + "/"+mtdName + "Response"%>"
+ <%}%>)
+
+type <%= service %> struct <%= "{" %>
+    core.BaseClient
+<%= "}" %>
+
+func New(profile *core.AccessProfile)*<%= service %><%= "{" %>
+    p := &<%- service %>{}
+    p.Version = <%- '"'+Version+'"' %>
+	p.ProductName = <%- '"'+Product+'"' %>
+	p.Profile = profile
+	p.ApiStyle = "<%=ApiStyle%>"
+	p.HttpRequestBuilder = &core.<%=getBuilderName(Product,ApiStyle)%>{}
+    return p
+<%= "}" %>
+
+<% for(var i=0; i<methodInfos.length; i++){ var reqParaName = lowerFirst(methodInfos[i].detail.name + "Request"); var resType=packageName+"_"+upperFirst(methodInfos[i].detail.name) +"Response."+upperFirst(methodInfos[i].detail.name) +"Response";%>  
+func (c *<%- service %>)<%=upperFirst(methodInfos[i].detail.name) + "(" + reqParaName +" *"+  upperFirst(methodInfos[i].detail.name +"Request") + ") (" + resType +",error){"  %>
+    var resObj <%=resType%>
+	
+	if  <%=reqParaName%> == nil{
+	   <%=reqParaName%> = new(<%=upperFirst(methodInfos[i].detail.name +"Request")%>)
+	}
+	err := c.DoAction(<%-reqParaName +",&resObj"%>)
+	return resObj,err
+<%= "}"%>
+<% } %>
